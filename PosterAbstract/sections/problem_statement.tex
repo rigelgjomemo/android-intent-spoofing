@@ -1,0 +1,46 @@
+% !TEX root =  ../main.tex
+\section{Problem Statement}
+\label{sec:problem}
+
+\textbf{Threat Model}. In our threat model, an attacker first analyzes the manifest file to identify exposed components that can receive intent messages. An example of such a component is depicted in Listing \ref{lst:example}, where the \textit{onCreate} method (line 1) is called to start a component. Next, the attacker identifies statements inside those components whose execution may be subverted to the attacker' s advantage. These statements may include network operations, database operations, updates to GUI elements and so on, and their execution may be subverted by modifying their parameter values, e.g., URL-s where data are sent by network operations, database queries, and the text of GUI elements (e.g., the HttpPost object creation in line 19, where the attacker may be able to modify the value of the \textit{url} variable to a domain under the attacker's control, or the statement on line 31, where the attacker may be able to modify the value of the variable \textit{p}). We call such statements targeted by an attacker \textit{sink} statements and those statements that extract intent data values \textit{source} statements (e.g., lines 2-5). 
+
+\begin{lstlisting}[caption={Source code of a vulnerable application},label={lst:example},numbers=left,basicstyle=\ttfamily\scriptsize ]
+void onCreate(Bundle savedInstance) {
+ Intent intent=getIntent();
+ String host = intent.getStringExtra("hostname");
+ String user = intent.getStringExtra("username");
+ String file = intent.getStringExtra("filename");
+ String url="http://www.example.com";
+ if (host.contains("example.com"))
+   url = "http://" + host + "/";
+ if (file.contains(".."))
+   file = file.replace("..", "");
+ String userId = getUserID(user);
+ if (userId != -1)
+   textView.setText(user_name);
+ String b64File = toBase64(file);
+ String httpPar = toHttpParams(b64File,user_id);
+ . . .
+ try {
+   DefaultHttpClient httpC = new DefaultHttpClient();
+   HttpPost post = new HttpPost(url+httPar);
+   . . .
+   httpC.execute(post);
+ }
+ catch(IOException e) {
+   e.printStackTrace();
+ }
+}
+String toBase64(String p) {
+ if(p=null || p.equals(""))
+   p = "/data/data/com.example/defaultFile.pdf";
+ else
+   p = "/data/data/com.example/public/" + p;
+ byte[] bytes = InputStream.read(p);
+ String b = Base64Encoder.toString(bytes);
+ return b;
+}
+\end{lstlisting}
+
+As has been recognized by previous work, to detect this type of vulnerabilities, it is important to correctly identify paths that starting from the \textit{source} statements enable an attacker to influence the variable values at the \textit{sink} statements. However, the existence of a path does not imply that an attack is feasible. To precisely identify exploit opportunities and prevent them, the operations performed on the variable values along that path must also be considered. In fact, these operations may include  sanitizations (e.g., lines 9-10), and other business logic operations (e.g., lines 11-13) that, while allowing an attacker to influence the values at the sink statements, make exploits unfeasible. In the rest of the paper, we present a method for automatically detecting such vulnerabilities and providing exploitability proofs for them. 
+

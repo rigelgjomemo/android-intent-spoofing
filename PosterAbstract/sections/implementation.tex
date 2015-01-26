@@ -1,0 +1,108 @@
+% !TEX root =  ../main.tex
+\section{Implementation}
+\label{sec:implementation}
+\todo{The attacker app section needs improvement}
+
+In this section, we discuss the implementation of the different steps of our approach.
+
+\subsection{Path Computation}
+As mentioned previously, the problem of path computation is a typical interprocedural data-flow problem. In our approach, we model this problem as an instance of an interprocedural, finite, distributive, subsets problem (IFDS). This framework is build on top of Soot, a Java optimization framework, due to the many analysis facilities it provides \cite{heros,Bodden:2012:IDA:2259051.2259052,Vallee-Rai:1999:SJB:781995.782008}. In addition, we use the Heros Soot plugin, which provides an implementation of the IFDS framework \cite{heros}.
+
+To prepare the application for use with Soot and HEROS, the Dalvik bytecode is first transformed into Soot's intermediate representation language Jimple. While in theory this transformation may be lossy and not retrieve the original code, these losses are negligible. Jimple is particularly suited to our task, since it provides a three-address and single assignment representation of the code, making it easier to derive the information about paths and perform symbolic execution. In addition, the Soot framework provides many ready-to-use capabilities for code analysis.
+
+In our implementation, we model the preliminary taint propagation step as a data-flow problem as well, and incorporate it into the IFDS instance problem of path computation. This removes the need for running this step separately and improves the efficiency of our implementation. Before proceeding further, we provide a short review of the IFDS framework.
+
+\noindent
+\textbf{IFDS framework}.
+IFDS is a framework for interprocedural data flow analysis that transforms dataflow problems into graph reachability problems \cite{ifds,Bodden:2012:IDA:2259051.2259052}. This framework  is particularly efficient in dealing with interprocedural data flow analysis, and highly customizable to represent different data flow problems. The framework takes care automatically of several general analysis tasks, such as
+determination of valid paths on the control flow supergraph (i.e., paths that can potentially be executed at runtime) and of fact propagation. However, to solve a specific analysis problem, it is necessary to formulate it appropriately as an instance of an IFDS problem. Inpractice, this means defining the analysis information contained in the data-flow \emph{facts} as well as the \emph{rules} that update that information for every node in the control flow supergraph. 
+
+% IFDS relies on a control flow supergraph similar described in Section \ref{sec:approach}. 
+% After a user defines the analysis information contained inside a fact and the update rules for different types of nodes, the IFDS framework then proceeds to traverse the supergraph and use those rules to update facts with new information. The graph traversal stops when a fixpoint is reached and no new information can be added to any facts.
+
+
+\noindent
+\textbf{Source statements detection}.
+The first step in defining the problem as an IFDS instance is the specification of the \textit{source statements}, which constitute the IFDS analysis entry points. To detect these entry points, a full scan of the Jimple representation of the program is performed and the instructions that perform Intents and Bundle payload extraction (e.g. $getStringExtra$) are identified. Since the set of API calls that Android provides to extract Intent payloads is limited, we use an exhaustive list of method signatures for this task.
+%What does the sentence: "A step further...." mean?
+A step further is made in order to reconcile extractions of different payload pieces conceptually belonging
+ to the same Intent message. 
+ After this detection, the program variables whose value is defined in the entry points serve as the initial taint variables. These are indeed the variables appearing in the state $V_I$, whose value can be set by an attacker.
+%In most of the cases, this extraction is performed in the $onCreate$ or in the $onBind$ methods, which are the set-up methods for both Android Activities and Services.
+% Practically, this means that we will have a direct connection between an attack stimulation (sending an intent message) and the vulnerable code fragments that use them.
+
+
+%We are not using these entry points later. REMOVE
+% To represent an entry point, we use a data structure populated with information about the Android component in which the extractions
+% were encountered, the method in which the single piece was first assigned complete with the exact location
+% in the method body. An entry point for the payload piece $host$ in the example proposed in Figure~\ref{lst:example} is shown below:
+% \begin{verbatim}
+%   EntryPoint =
+%    {
+%      name: "host",
+%      component: SendActivity,
+%      method: SendActivity$onCreate(),
+%      location: line 3,
+%      statement:
+%       String host = intent.getStringExtra("host");
+%    }
+% \end{verbatim}
+% In this case, the following steps of the analysis, consider the variable $host$ as the tainted variable
+% from the \textit{source} statement. %The path identification and computation steps are aimed to find a path between
+%variable $url$ and a vulnerable sink, in addition to a value to this variable that makes
+%such path traversable.
+
+\noindent
+\textbf{Path Computation and Taint Propagation}.
+The next step in modeling our problem as an IFDS instance, is to define the information contained inside the dataflow facts and how this information is updated for the different nodes of the supergraph. In our implementation, we use a special definition of a \emph{fact}, which contains both taint propagation and path information. Thus, a \emph{fact} is defined as tuple $F = (input-var, tainted-vars, statements, cond-statments)$, where $input-var$ represents a variable from the state $V_I$ whose value is defined in the source statements, $tainted-vars$ is a set of variables representing the tainted variables, $statements$, is the list of statements from the source statement to the current point in the program, and $cond-statements$, is the list of all the conditional statements from the source statement to the current point in the program. 
+%Do we need this? We do not use it later in the discussion
+  %In addition, each fact stores the name of the component containing the source statement as well as the name, the type and the method signature containing the source statement. 
+For instance, when the analysis reaches line 3 in Figure \ref{lst:example} where the $host$ variable is extracted from the intent, a new fact $Fact$ is created:
+
+\begin{verbatim}
+Fact = { input-variable: "host",
+  tainted-variables: "host"
+  statements: host=
+        intent.getStringExtra("hostname")
+  conditional-statements: <empty>
+  context: line 3 }
+\end{verbatim}
+
+During analysis, the IFDS framework takes care of traversing the supergraph and update the facts associated with each node using user-defined \emph{rules}. These rules are different for every node and described below:
+\begin{description}
+ \item[Normal Rules:] These functions define how fact information is updated for nodes different from method calls. In this case, we add a statement to the $statements$ list if: either the $input-variable$ or one of the $tainted$ variables is used by the statement. A new variable is added to the $tainted$ set if its value is obtained by using the $input-variable$ or the one of the already present tainted variables.
+ \item[Call Rules:] These rules define how fact information is updated for procedure calls.
+  In this case, the call statement is added to the $statements$ list, if the $input-variable$ or one of the tainted variables are contained in the list of arguments. For instance, the statement at line 14 where the $file$ variable is used, is added to the $statements$ list. In addition, this rule is used to add to the set of tainted variables the formal parameters of the callee that correspond to tainted variables in the call. For instance, since the variable $file$ is tainted, the variable $p$ is renamed to $toBase64\_p$ and added to the list of tainted variables. Furthermore, an assignment statement that assigns the argument to the formal parameter is added to the $statements$ list.
+ \item[Return Rules:] The purpose of a return rule is to propagate the information discovered inside the body of a called method to the caller. Using this rule, the taint information is therefore propagated to the variables at the caller site. For instance, since the return value of the method $toBase64$ is tainted, the variable $b64File$ is added to the list of tainted variables.
+
+\end{description}
+
+Both normal and call rules serve also to create a new fact, when a method that extracts data from an intent is encountered.
+
+% \todo{Added}
+% For instance, the fact $F$ is created when the analysis reaches line 4. The statement at line 5 where the $filename$ variable is used, is also added to the $tainted-statements$ set. In addition, the $b64File$ name is added to the set of $tainted$ in $F$, since the statement contains the $filename$ on the right hand of the assignment.
+% The statement at line 7 is added as well to the $tainted-statements$, since the alias $b64File$ is matched. The variable $httpPar$ is also added to the $tainted$ set, since $b64File$ now appears on the right hand side of the statement.
+
+After the definition of these rules is provided, the IFDS framework traverses the super-graph and executed them depending on the type of statements encountered. For instance, if the statements contains a procedure call, call rules are executed. We added an exception to this behavior in our implementation: When the statement contains a library method call, we execute normal rules rather than call rules to prevent the IFDS framework from traversing the body of those calls.
+
+\subsection{Symbolic Execution Implementation}
+Given the paths identified inside the facts by the previous step, we match each statement to one of the productions of the symbolic formula grammar described in Section \ref{sec:approach} and add it as a term to the rest of the formula. In particular, the rules for each of the productions are described below.
+\begin{description}
+\item[Assignment statements:] Every assignment statement in the path is transformed into an equality constraint. 
+\item[Branching statements:] For every branching statement, symbolic execution is split into two paths and the condition of the branching statement is added to the true branch, while its negation is added to the false branch.
+For instance, when the $if$ statement in line 28 of Fig. \ref{lst:example} is encountered, the condition $p==null \| p==``''$ is added to the formula representing the path that contains the $then$ part of the statement, while the condition $!(p==null \| p==``'')$ is added to the path that contains the $else$ part of the statement.
+\item[User-defined procedure calls:] When a call to a user defined method is encountered, we first rename the local variables of the method by prepending the name of the function to avoid duplicates, then add equality constraints between arguments and formal parameters. Next, we proceed to symbolically execute the function. For instance, since the variable $file$ is passed as an argument to $toBase64$, we add the constraint $``file == toBase64\_p''$ to the formula. If the function returns a value that is assigned to a variable, we add an equality condition between them as well. For instance, the condition added after the return statement of $toBase64$ is $b64File==toBase64_b$.
+\item[Library method calls:] Unsolvable library method calls are replaced by a special term whose purpose is to not introduce any constraints to its arguments. For instance, the statement at line 33 produces the constraint $``toBase64_b==SpecialTerm(bytes)''$.
+\end{description}
+
+\input{sections/exploitgeneration}
+
+\subsection{Approximations and limitations}
+
+For simplicity, we used several approximations in our approach. We discuss their impact in the following paragraphs.
+
+\emph{Untainted input variables}. Motivated by efficiency considerations, we chose to ignore variables whose values cannot be affected by the variables input via intents. While allowing us to prune a portion of the control flow super-graph by removing statements that do not use tainted variables, this choice may also reduce the precision of our approach. In fact, the value of the outputs at the sink may also depend on these variables. This approximation may lead to \textit{false positives} where an input state $V_I$ is computed statically starting from an exploit state $V_E$, while at run time, the presence of these untainted variables in the computation path may induce a state different from $V_E$ at the \textit{sink} statement.
+
+\emph{Loop unrolling and library method calls}. Loops and libraries are common problems that affect the efficiency of symbolic execution. By unrolling loops at most one time and by choosing to model API procedure calls as atomic instructions, one of the risks is missing additional computations (that is constraints) on the tainted variables. This again may lead to \textit{false positives}, where given a desired malicious output $O_m$, we obtain a too large malicious input set $I_a$ because of the fewer constraints.
+
+\input{sections/attacker_construction}

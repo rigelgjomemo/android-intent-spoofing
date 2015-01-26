@@ -1,0 +1,469 @@
+Algorithm: 
+For clarity the line number is appended to the Fact name. For instance, Fact3 is the Fact at line 3.
+Line 3: String host = intent.getStringExtra("hostname"); //normal
+	EntryPoint3: {name: "host", 
+				  Component: "SendActivity", 
+				  method: "SendActivity$onCreate", 
+				  location: "line 3",
+				  Statement: "String host = intent.getStringExtra("host")"
+				  }
+	Fact3: {input-variable:"host", 
+			tainted:"host", 
+			statements:"String host =...", 
+			conditional_statements: <empty>,
+			Activity: "SendActivity", type: String, context: "line 3"}
+
+Line 4: String user = intent.getStringExtra("username"); //normal
+	EntryPoint4: {name: "user", 
+				  Component: "SendActivity", 
+				  method: "SendActivity$onCreate", 
+				  location: "line 4",
+				  Statement: "String user = intent.getStringExtra("username")"
+				  }
+	Fact4: {input-variable:"user", 
+			tainted:"user", 
+			statements:"String host =...", 
+					   "String user =...", 
+			conditional_statements: <empty>,
+			Activity: "SendActivity", type: String, context: "line 4"}
+
+Line 5: String file = intent.getStringExtra("filename"); //normal
+	EntryPoint5: {name: "file", 
+				  Component: "SendActivity", 
+				  method: "SendActivity$onCreate", 
+				  location: "line 5",
+				  Statement: "String file = intent.getStringExtra("filename")"
+				  }
+	Fact5: {input-variable:"file", 
+			tainted:"file", 
+			statements:"String host =...", 
+					   "String user =...",
+					   "String file =...",
+			conditional_statements: <empty>,
+			Activity: "SendActivity", type: String, context: "line 5"}
+
+Line 6: String url="http://www.example.com"; //normal
+	Fact6: {input-variable:"", 
+			tainted:<empty>, 
+			statements:"String host =...", 
+					   "String user =...",
+					   "String file =...",, 
+					   String url="http://www.example.com";
+			conditional_statements: <empty>,
+			Activity: "SendActivity", type: String, context: "line 6"}
+
+Line 7: if (host.contains("example.com")) //normal
+	Fact7: {input-variable:"host", 
+			tainted:<empty>, 
+			statements:"String host =...", 
+					   "String user =...",
+					   "String file =...",, 
+					   String url="http://www.example.com";
+					   if (host.contains("example.com"))
+			conditional_statements: <empty>,
+			Activity: "SendActivity", type: String, context: "line 7"}
+
+Line 8: url = "http://" + host + "/"; //normal
+	Fact8: {input-variable:"host", 
+			tainted: "url", 
+			statements:"String host =...", 
+					   "String user =...",
+					   "String file =...",, 
+					   String url="http://www.example.com";
+					   if (host.contains("example.com"))
+					   		url = "http://" + host + "/";
+			conditional_statements: if (host.contains("example.com")),
+			Activity: "SendActivity", type: String, context: "line 8"}
+
+Line 9: if (file.contains("..")) //normal
+	Fact9: {input-variable:"file", 
+			tainted: "file", 
+			statements:"String host =...", 
+					   "String user =...",
+					   "String file =...",, 
+					   String url="http://www.example.com";
+					   if (host.contains("example.com"))
+					   	  url = "http://" + host + "/";
+					   if (file.contains(".."))
+			conditional_statements: if (host.contains("example.com")),
+										url = "http://" + host + "/";
+									if (file.contains(".."))
+			Activity: "SendActivity", type: String, context: "line 9"}
+
+Line 10: file = file.replace("..", ""); //normal
+	Fact10: {input-variable:"file", 
+			tainted: "file", 
+			statements:"String host =...", 
+					   "String user =...",
+					   "String file =...",, 
+					   String url="http://www.example.com";
+					   if (host.contains("example.com"))
+					   	  url = "http://" + host + "/";
+					   if (file.contains(".."))
+					   	  file = file.replace("..", "");
+			conditional_statements: if (host.contains("example.com")),
+										url = "http://" + host + "/";
+									if (file.contains(".."))
+										file = file.replace("..", "");
+			Activity: "SendActivity", type: String, context: "line 10"}
+
+Line 11: String userId = getUserID(user); //normal
+	Fact11: {input-variable:"user", 
+			tainted: "userid", 
+			statements:"String host =...", 
+					   "String user =...",
+					   "String file =...",, 
+					   String url="http://www.example.com";
+					   if (host.contains("example.com"))
+					   	  url = "http://" + host + "/";
+					   if (file.contains(".."))
+					   	  file = file.replace("..", "");
+					   String userId = getUserID(user);
+			conditional_statements: if (host.contains("example.com")),
+										url = "http://" + host + "/";
+									if (file.contains(".."))
+										file = file.replace("..", "");
+			Activity: "SendActivity", type: String, context: "line 11"}
+
+Line 12: if (userId != -1) //normal
+	Fact12: {input-variable:"user", 
+			tainted: "userid", 
+			statements:"String host =...", 
+					   "String user =...",
+					   "String file =...",, 
+					   String url="http://www.example.com";
+					   if (host.contains("example.com"))
+					   	  url = "http://" + host + "/";
+					   if (file.contains(".."))
+					   	  file = file.replace("..", "");
+					   String userId = getUserID(user);
+					   if (userId != -1)
+			conditional_statements: if (host.contains("example.com")),
+										url = "http://" + host + "/";
+									if (file.contains(".."))
+										file = file.replace("..", "");
+									if (userId != -1)
+			Activity: "SendActivity", type: String, context: "line 12"}
+
+Line 13: textView.setText(user_name); //normal
+	Fact13: {input-variable:"user", 
+			tainted: "userid", 
+			statements:"String host =...", 
+					   "String user =...",
+					   "String file =...",, 
+					   String url="http://www.example.com";
+					   if (host.contains("example.com"))
+					   	  url = "http://" + host + "/";
+					   if (file.contains(".."))
+					   	  file = file.replace("..", "");
+					   String userId = getUserID(user);
+					   if (userId != -1)
+					   	  textView.setText(user_name);
+			conditional_statements: if (host.contains("example.com")),
+										url = "http://" + host + "/";
+									if (file.contains(".."))
+										file = file.replace("..", "");
+									if (userId != -1)
+										textView.setText(user_name);
+			Activity: "SendActivity", type: String, context: "line 13"}
+
+Line 14: String b64File = toBase64(file); //call-flow.
+	Fact14: {input-variable:"file", 
+			tainted: "file", 
+					 "b64File"
+					 "userid"
+			statements:"String host =...", 
+					   "String user =...",
+					   "String file =...",, 
+					   String url="http://www.example.com";
+					   if (host.contains("example.com"))
+					   	  url = "http://" + host + "/";
+					   if (file.contains(".."))
+					   	  file = file.replace("..", "");
+					   String userId = getUserID(user);
+					   if (userId != -1)
+					   	  textView.setText(user_name);
+					   String b64File = toBase64(file);
+					   file=toBase64_p;
+			conditional_statements: if (host.contains("example.com")),
+										url = "http://" + host + "/";
+									if (file.contains(".."))
+										file = file.replace("..", "");
+									if (userId != -1)
+										textView.setText(user_name);
+			Activity: "SendActivity", type: String, context: "line 14"}
+
+Since the previous was a call-flow, let us go into the called function.	
+
+Line 28: if(p=null || p.equals(""))
+	Fact28: {input-variable:"file", 
+			tainted: "file", 
+					 "b64File"
+					 "toBase64_p"
+			statements:"String host =...", 
+					   "String user =...",
+					   "String file =...",, 
+					   String url="http://www.example.com";
+					   if (host.contains("example.com"))
+					   	  url = "http://" + host + "/";
+					   if (file.contains(".."))
+					   	  file = file.replace("..", "");
+					   String userId = getUserID(user);
+					   if (userId != -1)
+					   	  textView.setText(user_name);
+					   String b64File = toBase64(file);
+					   file=toBase64_p;
+					   if(toBase64_p=null || toBase64_p.equals(""))
+			conditional_statements: if (host.contains("example.com")),
+										url = "http://" + host + "/";
+									if (file.contains(".."))
+										file = file.replace("..", "");
+									if (userId != -1)
+										textView.setText(user_name);
+									if(toBase64_p=null || toBase64_p.equals(""))
+			Activity: "SendActivity", type: String, context: "line 28"}
+
+Line 29: p = "/data/data/com.example/defaultFile.pdf";
+	Fact29: {input-variable:"file", 
+			tainted: "file", 
+					 "b64File"
+					 "toBase64_p"
+			statements:"String host =...", 
+					   "String user =...",
+					   "String file =...",, 
+					   String url="http://www.example.com";
+					   if (host.contains("example.com"))
+					   	  url = "http://" + host + "/";
+					   if (file.contains(".."))
+					   	  file = file.replace("..", "");
+					   String userId = getUserID(user);
+					   if (userId != -1)
+					   	  textView.setText(user_name);
+					   String b64File = toBase64(file);
+					   file=toBase64_p;
+					   if(toBase64_p=null || toBase64_p.equals(""))
+					   		p = "/data/data/com.example/defaultFile.pdf";
+			conditional_statements: if (host.contains("example.com")),
+										url = "http://" + host + "/";
+									if (file.contains(".."))
+										file = file.replace("..", "");
+									if (userId != -1)
+										textView.setText(user_name);
+									if(toBase64_p=null || toBase64_p.equals(""))
+										p = "/data/data/com.example/defaultFile.pdf";
+			Activity: "SendActivity", type: String, context: "line 29"}
+
+Line 31: p = "/data/data/com.example/public/" + p;
+	Fact31: {input-variable:"file", 
+			tainted: "file", 
+					 "b64File"
+					 "toBase64_p"
+			statements:"String host =...", 
+					   "String user =...",
+					   "String file =...",, 
+					   String url="http://www.example.com";
+					   if (host.contains("example.com"))
+					   	  url = "http://" + host + "/";
+					   if (file.contains(".."))
+					   	  file = file.replace("..", "");
+					   String userId = getUserID(user);
+					   if (userId != -1)
+					   	  textView.setText(user_name);
+					   String b64File = toBase64(file);
+					   file=toBase64_p;
+					   if(toBase64_p=null || toBase64_p.equals(""))
+					   		p = "/data/data/com.example/defaultFile.pdf";
+					   	else
+					   		p = "/data/data/com.example/public/" + p;
+			conditional_statements: if (host.contains("example.com")),
+										url = "http://" + host + "/";
+									if (file.contains(".."))
+										file = file.replace("..", "");
+									if (userId != -1)
+										textView.setText(user_name);
+									if(toBase64_p=null || toBase64_p.equals(""))
+										p = "/data/data/com.example/defaultFile.pdf";
+									else
+					   					p = "/data/data/com.example/public/" + p;
+			Activity: "SendActivity", type: String, context: "line 31"}
+
+Line 32: byte[] bytes = InputStream.read(p);
+	Fact32: {input-variable:"file", 
+			tainted: "file", 
+					 "b64File"
+					 "toBase64_p"
+					 "bytes" ?
+			statements:"String host =...", 
+					   "String user =...",
+					   "String file =...",, 
+					   String url="http://www.example.com";
+					   if (host.contains("example.com"))
+					   	  url = "http://" + host + "/";
+					   if (file.contains(".."))
+					   	  file = file.replace("..", "");
+					   String userId = getUserID(user);
+					   if (userId != -1)
+					   	  textView.setText(user_name);
+					   String b64File = toBase64(file);
+					   file=toBase64_p;
+					   if(toBase64_p=null || toBase64_p.equals(""))
+					   		p = "/data/data/com.example/defaultFile.pdf";
+					   	else
+					   		p = "/data/data/com.example/public/" + p;
+					   	byte[] bytes = InputStream.read(p);
+			conditional_statements: if (host.contains("example.com")),
+										url = "http://" + host + "/";
+									if (file.contains(".."))
+										file = file.replace("..", "");
+									if (userId != -1)
+										textView.setText(user_name);
+									if(toBase64_p=null || toBase64_p.equals(""))
+										p = "/data/data/com.example/defaultFile.pdf";
+									else
+					   					p = "/data/data/com.example/public/" + p;
+			Activity: "SendActivity", type: String, context: "line 32"}
+
+Line 33: String b = Base64Encoder.toString(bytes);
+	Fact33: {input-variable:"file", 
+			tainted: "file", 
+					 "b64File"
+					 "toBase64_p"
+					 "bytes" ?
+					 "b"
+			statements:"String host =...", 
+					   "String user =...",
+					   "String file =...",, 
+					   String url="http://www.example.com";
+					   if (host.contains("example.com"))
+					   	  url = "http://" + host + "/";
+					   if (file.contains(".."))
+					   	  file = file.replace("..", "");
+					   String userId = getUserID(user);
+					   if (userId != -1)
+					   	  textView.setText(user_name);
+					   String b64File = toBase64(file);
+					   file=toBase64_p;
+					   if(toBase64_p=null || toBase64_p.equals(""))
+					   		p = "/data/data/com.example/defaultFile.pdf";
+					   	else
+					   		p = "/data/data/com.example/public/" + p;
+					   	byte[] bytes = InputStream.read(p);
+					   	String b = Base64Encoder.toString(bytes);
+			conditional_statements: if (host.contains("example.com")),
+										url = "http://" + host + "/";
+									if (file.contains(".."))
+										file = file.replace("..", "");
+									if (userId != -1)
+										textView.setText(user_name);
+									if(toBase64_p=null || toBase64_p.equals(""))
+										p = "/data/data/com.example/defaultFile.pdf";
+									else
+					   					p = "/data/data/com.example/public/" + p;
+			Activity: "SendActivity", type: String, context: "line 33"}
+
+Line 34: return b;  //return rule? 
+	Fact33: {input-variable:"file", 
+			tainted: "file", 
+					 "b64File"
+					 "toBase64_p"
+					 "bytes" ?
+					 "b"
+			statements:"String host =...", 
+					   "String user =...",
+					   "String file =...",, 
+					   String url="http://www.example.com";
+					   if (host.contains("example.com"))
+					   	  url = "http://" + host + "/";
+					   if (file.contains(".."))
+					   	  file = file.replace("..", "");
+					   String userId = getUserID(user);
+					   if (userId != -1)
+					   	  textView.setText(user_name);
+					   String b64File = toBase64(file);
+					   file=toBase64_p;
+					   if(toBase64_p=null || toBase64_p.equals(""))
+					   		p = "/data/data/com.example/defaultFile.pdf";
+					   	else
+					   		p = "/data/data/com.example/public/" + p;
+					   	byte[] bytes = InputStream.read(p);
+					   	String b = Base64Encoder.toString(bytes);
+					   	return b;? 
+			conditional_statements: if (host.contains("example.com")),
+										url = "http://" + host + "/";
+									if (file.contains(".."))
+										file = file.replace("..", "");
+									if (userId != -1)
+										textView.setText(user_name);
+									if(toBase64_p=null || toBase64_p.equals(""))
+										p = "/data/data/com.example/defaultFile.pdf";
+									else
+					   					p = "/data/data/com.example/public/" + p;
+			Activity: "SendActivity", type: String, context: "line 34"}
+
+After the call to toBase64, the fact of the last statement (Fact33) is returned to the caller (?), where it is joined with Fact14, which was:
+
+							Fact14: {input-variable:"file", 
+										tainted: "file", 
+												 "b64File"
+										statements:"String host =...", 
+												   "String user =...",
+												   "String file =...",, 
+												   String url="http://www.example.com";
+												   if (host.contains("example.com"))
+												   	  url = "http://" + host + "/";
+												   if (file.contains(".."))
+												   	  file = file.replace("..", "");
+												   String userId = getUserID(user);
+												   if (userId != -1)
+												   	  textView.setText(user_name);
+												   String b64File = toBase64(file);
+												   file=toBase64_p;
+										conditional_statements: if (host.contains("example.com")),
+																	url = "http://" + host + "/";
+																if (file.contains(".."))
+																	file = file.replace("..", "");
+																if (userId != -1)
+																	textView.setText(user_name);
+										Activity: "SendActivity", type: String, context: "line 14"}
+
+
+Line 15: String httpPar = toHttpParams(b64File,user_id); //call flow
+	Fact15: {input-variable:"file", what about userid?
+			tainted: "file", 
+					 "b64File"
+					 "toBase64_p"
+					 "bytes" ?
+					 "b"
+					 "httpPar"
+					 "userid"
+			statements:"String host =...", 
+					   "String user =...",
+					   "String file =...",, 
+					   String url="http://www.example.com";
+					   if (host.contains("example.com"))
+					   	  url = "http://" + host + "/";
+					   if (file.contains(".."))
+					   	  file = file.replace("..", "");
+					   String userId = getUserID(user);
+					   if (userId != -1)
+					   	  textView.setText(user_name);
+					   String b64File = toBase64(file);
+					   file=toBase64_p;
+					   if(toBase64_p=null || toBase64_p.equals(""))
+					   		p = "/data/data/com.example/defaultFile.pdf";
+					   	else
+					   		p = "/data/data/com.example/public/" + p;
+					   	byte[] bytes = InputStream.read(p);
+					   	String b = Base64Encoder.toString(bytes);
+					   	return b;? 
+			conditional_statements: if (host.contains("example.com")),
+										url = "http://" + host + "/";
+									if (file.contains(".."))
+										file = file.replace("..", "");
+									if (userId != -1)
+										textView.setText(user_name);
+									if(toBase64_p=null || toBase64_p.equals(""))
+										p = "/data/data/com.example/defaultFile.pdf";
+									else
+					   					p = "/data/data/com.example/public/" + p;
+			Activity: "SendActivity", type: String, context: "line 34"}

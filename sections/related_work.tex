@@ -1,0 +1,22 @@
+% !TEX root =  ../main.tex
+\section{Related Work}
+\label{sec:related}
+
+Android ICC security has received an increasing interest in the past years. 
+The current state of the art is presented in \cite{Epicc}. This work aims to provide a precise specification of applications ICC interconnections by using IFDS analysis to determine communication entry and exit points and determine security breaches. Despite some common points in the techniques, our work is focused on the paths inside a single application rather than analyzing a network of intercommunicating applications. In addition, we characterize vulnerabilities and provide exploit proofs. 
+
+In \cite{chin2011analyzing}, the authors analyze the inter-application message passing system and identify risks of intent-spoofing, such as broadcast eavesdropping and denial of service. Their work is however focused on developer practices that allow intents to be sent by malicious applications and received by victim applications. Our work goes more in-depth and focuses on how the attackers can use intent-spoofing and leverage insufficient intent data validation checks inside applications to carry out additional attacks. Also, our work goes in the direction of automatic detection and exploitation of the vulnerabilities.
+
+In FlowDroid, the authors present an IFDS-based taint analysis to derive information flow inside Android applications and detect malicious data leakages~\cite{flowdroid}. Conversely, in our work, IFDS-based taint analysis is used only as a first step towards symbolic execution of an application component with the goal of finding vulnerable paths inside an application.
+
+A work related to defenses against intent spoofing is~\cite{quire2011}. Quire is a lightweight framework to enhance Android IPC mechanism by adding message provenance. The implementation relies on a signature scheme that allows message recipient validation before delivering. The class of attacks they want to prevent is closely related to the ours: \emph{confused deputy attacks}. Their approach needs to modify the Android OS in order to guarantee the described security features, our approach aims to obtain a similar result by preventing behaviors that can potentially introduce vulnerabilities in applications.
+
+Other related studies includes different techniques for statically testing 
+security of Android applications: Schmidt \emph{et al.}~\cite{schmidt2009static} used static analysis to extract a 
+list of function calls from which they can perform data analysis for malware 
+detection. Mirzaei \emph{et al.}~\cite{mirzaei2012testing} applied symbolic execution techniques in order to generate test cases and thus differs significantly from our work. ScanDal~\cite{kim2012scandal} is a static analyzer that implements a formal approach to automatically detect private data leaks in Android applications rather than detect active attacks as in our work. 
+
+A very broad area of research relates with the development of various techniques for malware analysis: from their classification~\cite{zhou2012dissecting}, 
+behavior reconstruction~\cite{reina2013system} and deep analysis~\cite{yan2012droidscope} to their detection~\cite{burguera2011crowdroid, grace2012riskranker}. However, none of these works deals with legitimate application analysis and detection of insufficient validation checks among applications.
+
+\todo{IMPORTANT we do not describe CHEX here!!!}

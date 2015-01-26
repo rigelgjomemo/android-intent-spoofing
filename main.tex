@@ -1,0 +1,150 @@
+%\documentclass[conference]{./template/IEEEtran}
+\documentclass[conference]{acm_proc_article-sp}
+\usepackage{cite}
+\usepackage{graphicx}
+\usepackage{myart,times}
+% \usepackage{stfloats}
+\usepackage{listings}
+\usepackage{fancyvrb}
+% \usepackage{framed}
+% \usepackage{caption}
+\usepackage{subcaption}
+% \usepackage{subfigure}
+%\usepackage{amsthm}
+\usepackage[]{algorithm2e}
+\usepackage[disable]{todonotes}
+\presetkeys{todonotes}{inline}{}
+\newcommand{\done}[2]{\todo[color=green!40]{#1\bf{#2}}}
+
+
+% \usepackage[listings,skins]{tcolorbox}
+\hyphenation{op-tical net-works semi-conduc-tor}
+\newtheorem{definition}{Definition}
+\newcommand{\titlea}{Static Detection and Automatic Exploitation of Intent Message Vulnerabilities in Android Applications}
+\newcommand{\titleb}{Analysis of Android Applications for Intent Message Vulnerabilities}
+\newcommand{\titlec}{Android Message Passing Analysis}
+\newcommand{\titled}{Practical Exploit Generation for Intent Message Vulnerabilities in Android}
+\begin{document}
+\title{\titled}
+
+
+% \author{
+% \IEEEauthorblockN{Daniele Gallingani}
+% \IEEEauthorblockA{University of Illinois at Chicago\\
+% Chicago, IL\\
+% Politecnico di Milano\\
+% Milano, Italy\\
+% Email: dgalli3@uic.edu}
+% \and
+% \IEEEauthorblockN{Rigel Gjomemo, V.N. Venkatakrishnan}
+% \IEEEauthorblockA{University of Illinois at Chicago\\
+% Chicago, IL\\
+% Email: \{rgjome1,venkat\}@uic.edu}
+% \and
+% \IEEEauthorblockN{Stefano Zanero}
+% \IEEEauthorblockA{Politecnico di Milano\\
+% Milano, Italy\\
+% Email: stefano.zanero@polimi.it}
+% }
+
+%\numberofauthors{4}
+%\author{
+%\alignauthor
+%Daniele Gallingani\\
+%       \affaddr{University of Illinois at Chicago}\\
+%       \affaddr{Chicago, IL}\\
+%       \affaddr{Politecnico di Milano}\\
+%       \affaddr{Milano, Italy}\\
+%       \email{dgalli3@uic.edu}\\
+%       \email{daniele.gallingani@mail.polimi.it}
+%\alignauthor
+%Rigel Gjomemo\\
+%       \affaddr{University of Illinois at Chicago}\\
+%       \affaddr{Chicago, IL}\\
+%       \email{rgjome1@uic.edu}
+%\alignauthor
+%V.N. Venkatakrishnan\\
+%       \affaddr{University of Illinois at Chicago}\\
+%       \affaddr{Chicago, IL}\\
+%       \email{venkat@uic.edu}
+%\alignauthor
+%\and
+%Stefano Zanero\\
+%       \affaddr{Politecnico di Milano}\\
+%       \affaddr{Milano, Italy}\\
+%       \email{stefano.zanero@polimi.it}
+%}
+
+% \author{
+% \IEEEauthorblockN{
+% Daniele Gallingani\IEEEauthorrefmark{1},
+% Rigel Gjomemo\IEEEauthorrefmark{2},
+% V.N. Venkatakrishnan\IEEEauthorrefmark{3} and
+% Stefano Zanero\IEEEauthorrefmark{4}
+% }
+% \IEEEauthorblockA{\IEEEauthorrefmark{1}University of Illinois at Chicago\\
+% Chicago, IL\\
+% Politecnico di Milano\\
+% Milano, Italy\\
+% Email: dgalli3@uic.edu}
+% \IEEEauthorblockA{\IEEEauthorrefmark{2}University of Illinois at Chicago\\
+% Chicago, IL\\
+% Email: rgjome1@uic.edu}
+% \IEEEauthorblockA{\IEEEauthorrefmark{3}University of Illinois at Chicago\\
+% Chicago, IL\\
+% Email: venkat@uic.edu}
+% \IEEEauthorblockA{\IEEEauthorrefmark{4}Politecnico di Milano\\
+% Milano, Italy\\
+% Email: stefano.zanero@polimi.it}
+% }
+
+\maketitle
+
+
+\begin{abstract}
+Android's Inter-Component Communication (ICC) mechanism strongly relies
+on  Intent messages. Unfortunately, due to the lack of message
+origin verification in Intents, implementing security policies based
+on message sources is hard in practice, and completely relies on the
+programmer's skill and attention. In this paper, we first review a set of
+vulnerabilities that common programming errors might introduce. Second,
+we present how these vulnerabilities can be effectively detected automatically
+through static analysis. We are thus able to highlight component fragments
+that expose vulnerable resources to possible malicious message senders. Most importantly,
+we advance the state of the art by developing a method to automatically demonstrate
+whether the identified vulnerabilities can be exploited or not, adopting a formal
+approach to automatically produce malicious payloads that can trigger
+dangerous behavior in vulnerable applications. We therefore eliminate the high rate of false
+positives common in previously applied methods.
+We test our methods on a representative sample of applications, and we find that 29 out of 
+64 tested applications are detected as potentially vulnerable, while
+26 out of 29 can be automatically proven to be exploitable. Our experiments demonstrate the
+lack of exhaustive sanity checks when receiving messages from unknown sources, and 
+stress the underestimation of this problem in real world application development. The techniques
+we develop can be used to detect these issues in a completely automated fashion and with much
+higher precision than the state-of-the-art.
+\end{abstract}
+
+
+%\IEEEpeerreviewmaketitle
+
+\input{sections/introduction}
+
+\input{sections/problem_statement}
+
+\input{sections/approach}
+
+%\input{sections/analysis}
+
+\input{sections/implementation}
+
+\input{sections/results}
+
+\input{sections/related_work}
+
+\input{sections/conclusions}
+
+\bibliographystyle{template/IEEEtran}
+\bibliography{bibliography}
+
+\end{document}

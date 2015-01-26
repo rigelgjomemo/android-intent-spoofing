@@ -1,0 +1,31 @@
+% !TEX root =  ../main.tex
+\section{Introduction}
+
+% Out of a 6.8 billion alleged mobile phone subscribers~\cite{ict-facts-2013},
+% the Android platform enjoys a 75\% market share, according to the most recent
+% surveys~\cite{gartner-stats-2013,idc-android-2013}.
+% Unsurprisingly, Android is quickly becoming the target of choice for
+% cybercriminals~\cite{trendmicro-q3-2012}. While currently the
+% most prevalent threat consists of malicious apps, according to McAfee's most
+% recent report~\cite{mcafee-q1-2013}, spyware and targeted attacks
+% are gaining hold. Therefore, vulnerabilities at the application
+% level will soon become an important target for attackers.
+
+Android applications are formed by logically separated
+components that mainly communicate with each other through \emph{Intents}, which
+carry data and request the execution of a procedure to another application.
+However, the Android Intent Passing mechanisms do not provide the
+receiving component with any information concerning the origin of an intent, thus
+facilitating the creation of spoofed intents with malicious input data 
+\cite{chin2011analyzing,Lu:CHEX:2012}. If such
+malicious input is not properly validated or sanitized by an application
+before being processed, it may subvert its state and control flow in unexpected
+ways. This attack vector may lead to a wide range of attacks, not only against
+the application itself, but also against other applications that receive and
+process data from the vulnerable app. 
+
+Previous research studied applications and the Android ecosystem to
+identify components that are exposed to receiving intents from untrusted
+applications and to check whether there exist dataflows from data input points to critical operations. However, this previous research is not being able to automatically verify the \emph{practical exploitability} of the discovered dataflows ~\cite{Lu:CHEX:2012}. This is due to two main reasons: 1) static analysis techniques approximate the behavior of programs and include additional behaviors that are not actually present and, 2) analysis techniques in state-of-the-art approaches only take into account the existence of potential suspicious paths and ignore the effect of the code along those paths, such as the use of input validation to mitigate intent spoofing vulnerabilities~\cite{chin2011analyzing}. 
+
+In this paper, we automatically develop proof-of-concept exploits against applications, to effectively prove that they are vulnerable to intent message vulnerabilities. We statically analyze the application to identify data-flows under an attacker's (indirect) control and design an analyzer that is able to follow such flows and identify Intent data that may affect either directly or indirectly the results that a component produces and sends in output. At this point, we use a constraint solver to develop concrete proof-of-concept exploits, thereby confirming the presence of the vulnerability. We test our approach on 64 popular applications from the Google Play store. Of these, 29 exhibit potential vulnerabilities, and for 26 of these, we are able to automatically generate an exploit, i.e. spoofed intents that trigger and demonstrate those vulnerabilities. 

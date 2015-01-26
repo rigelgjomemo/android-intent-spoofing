@@ -1,0 +1,103 @@
+% !TEX root =  ../main.tex
+\section{Introduction}
+
+Out of a 6.8 billion alleged mobile phone subscribers~\cite{ict-facts-2013},
+the Android platform enjoys a 75\% market share, according to the most recent
+surveys~\cite{gartner-stats-2013,idc-android-2013}.
+% Along with the
+% number of Android devices, the size of the official app market,
+% the Google Play Store, is astonishing: it reportedly totaled
+% 25 billion downloads in September~2012~\cite{apps25bil}, and it
+% is foreseen to pass the threshold of 1 million available
+% applications~\cite{apps1m}.
+Unsurprisingly, Android is quickly becoming the target of choice for
+cybercriminals~\cite{trendmicro-q3-2012}. While currently the
+most prevalent threat consists of malicious apps, according to McAfee's most
+recent report~\cite{mcafee-q1-2013}, spyware and targeted attacks
+are gaining hold. Therefore, vulnerabilities at the application
+level will soon become an important target for attackers.
+
+Android applications are characteristically formed by logically separated
+components that communicate with each other through two message passing mechanisms:
+\emph{Binder} and \emph{Intents}. \emph{Binder} is a lightweight remote procedure call
+mechanism, mainly used in service-to-service communication, while
+\emph{Intents} are the most used inter-component and inter-application communication mechanism.
+\emph{Intents} are used for data exchange, as well as for requesting the
+execution of a procedure to another application.
+
+Unfortunately, the Android Intent Passing mechanism does not provide the
+receiving component with any information concerning the origin of an intent.
+This facilitates the creation of spoofed intents with malicious input data. If such
+malicious input is not properly validated or sanitized by an application
+before being processed, it may subvert its state and control flow in unexpected
+ways. This attack vector may lead to a wide range of attacks, not only against
+the application itself, but also against other applications that receive and
+process data from the vulnerable app. %In practice, implementing an application
+%component that safely processes input messages is hard.
+
+%The only practical filtering mechanism is an all-or-nothing scheme, where components either
+%disallow any Intent coming from a different process, or accept any Intent matching a signature.
+%Signatures for all the components are declared in the application manifest file, easily accessible
+%to any potential attacker.
+
+%This creates an important class of vulnerabilities, in which a malicious application
+%could target another (vulnerable) application to compromise its internal state, or to
+%perform through it actions on remote resources bound to it.
+
+% via \emph{intent-filters} on the official Android documentation web site.
+Previous research works studied applications and the Android ecosystem to
+identify components that are exposed to receiving intents from untrusted
+applications \cite{chin2011analyzing}. Others studied how applications can
+circumvent Android's permission checking by delegating execution of operations
+to applications with elevated permissions \cite{felt2011permission}. 
+\cite{Grace:Android:2012} analyzed permission leaks in Android apps in order to identify permission leakage. 
+Finally, CHEX~\cite{Lu:CHEX:2012} develop static analysis techniques to
+check whether there exist dataflows that could lead to component hijacking vulnerabilities. 
+
+% Yet other work provides a language
+% for
+% specifying and proving the safety of unknown applications \cite{LanguageBasedSecurity}.
+
+However, a common shortcoming of prior literature is not being able to automatically verify 
+the \emph{practical exploitability} of component hijacking vulnerabilities. For instance, 
+CHEX~\cite{Lu:CHEX:2012} identifies 254 apps with suspicious data flows. A subsequent manual 
+analysis by the authors, however, identified that 48 out of these 254 apps were false positives. 
+Such false positives are due to two main reasons:
+\begin{itemize}
+\item {\em Precision issues in static analysis}. Static analysis techniques approximate the behavior of programs. Usually, a sound approximation is sought, by including all possible behaviors. However, to do so, approximations err on the side of excess, including additional behaviors that are not really present, such as dead code (i.e. paths that are never feasibly exercised). Since such additional paths are considered during dataflow analysis, they may lead to false instances of suspicious dataflows.  
+
+\item {\em Effect of security-critical actions of code}. Analysis techniques in state-of-the-art approaches to this problem only take into account the existence of potential suspicious paths. They ignore, however, the effect of the code along those paths, such as the use of input validation to mitigate intent spoofing vulnerabilities~\cite{chin2011analyzing}. Since such techniques can effectively obviate the security issues, ignoring their effectiveness leads to a large number of false alerts.
+\end{itemize}
+
+In this paper, we improve the state-of-art by automatically developing proof-of-concept exploits against applications, to effectively prove that they are vulnerable to intent message vulnerabilities. Developing proof-of-concept exploits helps minimize the risk of false alarms, and thus it increases the usability of the approach. 
+
+To do so, we begin by exploring the conditions that enable these attacks. Then, we statically analyze the application to identify data-flows under an attacker's (indirect) control. To do so, we design an analyzer that is able to follow such flows and identify Intent data that may affect either directly or indirectly the
+results that a component produces and sends in output. We formulate the problem as
+an Interprocedural Distributive Environment
+one, which allows us to efficiently deal with inter-procedural flows. Once such suspicious flows are identified, we develop techniques to analyze the operations (e.g., sanitization)
+that happen along the identified flows. At this point, we use a constraint solver to develop concrete proof-of-concept exploits, thereby confirming the presence of the vulnerability. Finally, we are able to demonstrate the vulnerability by developing an {\em attacker app}, capable of launching these exploits on actual applications. It is important to note that, similarly to~\cite{Lu:CHEX:2012}, our approach works on unmodified Android apps, without requiring any special information, nor access to the source code.
+
+We test our approach on 64 popular applications from the Google Play store. Of these, 29 exhibit potential vulnerabilities, and for 26 of these, we
+are able to automatically generate an exploit, i.e. spoofed intents that trigger and demonstrate those vulnerabilities. 
+We discuss in depth the results of this evaluation and analyze manually the applications to confirm them.
+We can thus confirm that many popular applications do not implement appropriate security countermeasures for Intent communications. Indeed, from our
+analysis we observed that most application only check if malformed Intent payload tuples are received, but such checks are meant to avoid errors, and are
+thus far from sufficient to stop a determined attacker.
+
+In summary, we make the following novel contributions:
+\begin{itemize}
+% \item we study in depth the attack surface and the impact of vulnerabilities in
+% apps related to Intent message passing.
+ \item We provide a static analysis method to automatically detect data flows that potentially allow
+ Intent data to affect the results sent in output by the applications, i.e. to identify potential vulnerabilities.
+ \item We provide a sound formulation of this problem as an Interprocedural Distributive Environment problem.
+ \item We describe an approach to automatically generate Intent examples that trigger a malicious behavior, thus
+ automatically validating the discovered vulnerabilities.
+ \item We develop an {\em attacker app}, that is capable of delivering malicious exploit inputs to exercise these vulnerabilities. 
+\end{itemize}
+
+The remainder of this paper is structured as follows. In Section \ref{sec:problem} we
+formalize the problem of inter-process communication on Android and introduce the vulnerabilities
+and their impact with the help of a running example. In Section \ref{sec:approach} we give an overview of our method, with its different components. In Section Section \ref{sec:implementation} we detail the analysis approach we used and symmetrically we detail the analyzer implementation. In Section \ref{sec:results}
+we report our experimental validation results. In Section \ref{sec:related} we review  related works. Finally,
+in Section \ref{sec:concl} we draw our conclusions.

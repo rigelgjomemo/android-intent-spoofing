@@ -1,0 +1,92 @@
+\def\section{\@startsection {section}{1}{\z@}{-2.3ex}{1.3ex}{\large\bf}}
+\def\subsection{\@startsection{subsection}{2}{\z@}{-2ex}{.9ex}{\normalsize\bf}}
+\def\subsubsection{\@startsection{subsubsection}{3}{\z@}{-2ex}{.8ex}{\normalsize\it}}
+\def\paragraph{\@startsection
+     {paragraph}{4}{\z@}{-1ex}{-1em}{\normalsize\bfseries\em}}
+\def\secparagraph{\@startsection
+     {subsection}{2}{\z@}{-1.5ex}{0.3em}{\normalsize\bfseries\em}}
+\def\subsecparagraph{\@startsection
+     {subsubsection}{2}{\z@}{-1.5ex}{0.3em}{\normalsize\bfseries\em}}
+\def\subparagraph{\@startsection
+     {subparagraph}{5}{\z@}{1ex}{-1em}{\normalsize\bf}}
+
+\leftmargini 0.8em
+\leftmarginii 1em     % > \labelsep + width of '(m)'
+\leftmarginiii 1em   % > \labelsep + width of 'vii.'
+\leftmarginiv 1em     % > \labelsep + width of 'M.'
+\leftmarginv .7em
+\leftmarginvi .7em
+
+\abovedisplayskip 0.2em
+\abovedisplayshortskip 0.2em
+\belowdisplayskip -2em
+\belowdisplayshortskip -2em
+%\jot 0em
+
+\leftmargin\leftmargini
+\labelsep .5em
+\labelwidth\leftmargini\advance\labelwidth-\labelsep
+%\parsep 4.5pt plus 2pt minus 1pt  %(Removed 9 Jun 87)
+
+% \@listI defines top level and \@listi values of
+% \leftmargin, \topsep, \parsep, and \itemsep
+% (Added 9 Jun 87)
+\def\@listI{\leftmargin\leftmargini \parsep 0.5ex% plus 2pt minus 1pt%
+\topsep 0.4ex %9pt plus 3pt minus 5pt%
+\itemsep 0ex%-.5ex%0.45ex %4.5pt plus 2pt minus 1pt
+}
+
+\let\@listi\@listI
+\@listi 
+
+\def\@listii{\leftmargin\leftmarginii
+   \labelwidth\leftmarginii\advance\labelwidth-\labelsep
+   \topsep 0ex %4.5pt plus 2pt minus 1pt
+%   \parsep 1ex
+   \itemsep 0ex
+}
+
+\def\@listiii{\leftmargin\leftmarginiii
+    \labelwidth\leftmarginiii\advance\labelwidth-\labelsep
+    \topsep 2pt plus 1pt minus 1pt 
+    \parsep \z@ \partopsep 1pt plus 0pt minus 1pt
+    \itemsep \topsep}
+
+\def\@listiv{\leftmargin\leftmarginiv
+     \labelwidth\leftmarginiv\advance\labelwidth-\labelsep}
+
+\def\@listv{\leftmargin\leftmarginv
+     \labelwidth\leftmarginv\advance\labelwidth-\labelsep}
+
+\def\@listvi{\leftmargin\leftmarginvi
+     \labelwidth\leftmarginvi\advance\labelwidth-\labelsep}
+
+%\renewenvironment{thebibliography}[1]
+%     { %\renewcommand{\baselinestretch}{0.9}
+%       \small \subsection*{\refname
+%                 \@mkboth{\MakeUppercase\refname}{\MakeUppercase\refname}}%
+%      \list{\@biblabel{\@arabic\c@enumiv}}%
+%           {\settowidth\labelwidth{\@biblabel{#1}}%
+%            \leftmargin\labelwidth
+%            \advance\leftmargin\labelsep
+%            \if@openbib
+%              \advance\leftmargin\bibindent
+%              \itemindent -\bibindent
+%              \listparindent \itemindent
+%              \parsep \z@
+%            \fi
+%            \usecounter{enumiv}%
+%            \let\p@enumiv\@empty
+%            \renewcommand\theenumiv{\@arabic\c@enumiv}}%
+%            \itemsep 10ex
+%      \if@openbib
+%        \renewcommand\newblock{\par}%
+%      \else
+%        \renewcommand\newblock{\hskip .11em \@plus.33em \@minus.07em}%
+%      \fi
+%      \sloppy\clubpenalty4000\widowpenalty4000%
+%      \sfcode`\.=\@m}
+%     {\def\@noitemerr
+%       {\@latex@warning{Empty `thebibliography' environment}}%
+%      \endlist}
+
